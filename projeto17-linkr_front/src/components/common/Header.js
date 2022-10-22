@@ -21,7 +21,7 @@ const TopBar = styled.div`
     position: fixed;
     top: 0;
     left: 0;
-    index: 3;
+    z-index: 3;
     padding: 2%;
     box-sizing: border-box;
 

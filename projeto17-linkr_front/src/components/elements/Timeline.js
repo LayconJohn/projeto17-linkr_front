@@ -3,6 +3,7 @@ import { useState } from "react";
 import axios from "axios";
 import styled from "styled-components";
 import Header from "../common/Header";
+import Trending from "./Trending";
 
 import { AiOutlineHeart } from "react-icons/ai";
 
@@ -116,8 +117,9 @@ export default function Timeline(){
                     </Post>              
                 </PostsSections>
 
-                
             </Container>
+
+            <Trending />
         </>
     );
 } 
@@ -219,7 +221,7 @@ const PostsSections = styled.div`
     width: 40%;
     padding: 20px;
     box-sizing: border-box;
-    ]margin-bottom: 30px;
+    margin-bottom: 30px;
 
     display: flex;
     flex-direction: row;
