@@ -12,4 +12,9 @@ function listTrendingHashtags() {
     return promisse;
 }
 
-export {listTrendingHashtags}
+function listPublicationsByHashtag(hashtag) {
+  const promisse = axios.get(`${BASE_URL}/hashtag/${hashtag}`);
+  return promisse;
+}
+
+export {listTrendingHashtags, listPublicationsByHashtag}
