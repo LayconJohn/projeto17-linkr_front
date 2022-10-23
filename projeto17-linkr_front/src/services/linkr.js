@@ -22,4 +22,14 @@ function listHashtagsByPublication(publicationId) {
   return promisse;
 }
 
-export {listTrendingHashtags, listPublicationsByHashtag, listHashtagsByPublication}
+function likePublication({token, publicationId}) {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+  const promisse = axios.post(`${BASE_URL}/like/${publicationId}`);
+  return promisse;
+}
+
+export {listTrendingHashtags, listPublicationsByHashtag, listHashtagsByPublication, likePublication}

@@ -2,7 +2,7 @@ import styled from "styled-components";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { listHashtagsByPublication } from "../../services/linkr";
+import { listHashtagsByPublication, likePublication } from "../../services/linkr";
 
 import { AiOutlineHeart } from "react-icons/ai";
 
@@ -14,8 +14,8 @@ export default function PostSection({ username, description, link, likes, public
     const navigate = useNavigate();
 
     //logic
-    function getHashtagsByPublicationId(publicationId) {
-
+    function likePost() {
+        
     }
 
     useEffect(() => {
