@@ -2,49 +2,91 @@ import styled from "styled-components";
 
 import { AiOutlineHeart } from "react-icons/ai";
 
-export default function PostSection({ username, description, link }) {
+export default function PostSection({ username, description, link, likes }) {
     return (
         <PostsSections>
 
-        <ProfilePicture>
-            <AiOutlineHeart/>
-        </ProfilePicture>
+            <ProfilePicture>
+                <img src="https://img.r7.com/images/meme-sorriso-forcado-hide-the-pain-harold-maurice-andras-arato-08112019141226221" alt="perfil"/>
+                <div>
+                    <IconLike> <AiOutlineHeart/> </IconLike>
+                    <p>{likes} likes</p>
+                </div>
+            </ProfilePicture>
 
 
-        <Post>
-            <PostInfos>
-                <UserName>
-                    <h2>{username}</h2>
-                </UserName>
-                <Description>
-                    <h3>{description}</h3>
-                </Description>
-            </PostInfos>
-            
-            <PostContent>
+            <Post>
+                <PostInfos>
+                    <UserName>
+                        <h2>{username}</h2>
+                    </UserName>
+                    <Description>
+                        <h3>{description}</h3>
+                    </Description>
+                </PostInfos>
+                
+                <PostContent>
 
-                <LinkInfos>
-                    <h3>Title Link</h3>
-                    <h4>
-                        Description Link.
-                    </h4>
-                    <h5>{link}</h5>
-                </LinkInfos>
-                <ImageLink>
+                    <LinkInfos>
+                        <h3>Title Link</h3>
+                        <h4>
+                            Description Link.
+                        </h4>
+                        <h5>{link}</h5>
+                    </LinkInfos>
+                    <ImageLink>
 
-                </ImageLink>
+                    </ImageLink>
 
-            </PostContent>
-            
-        </Post>              
-    </PostsSections>
+                </PostContent>
+                
+            </Post>              
+        </PostsSections>
     )
 }
 
 const ProfilePicture = styled.div`
     height: 100%;
     width: 60px;
-    background-color: #876525;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-direction: column;
+
+    img {
+        width: 50px;
+        height: 50px;
+        border-radius: 26px;
+        object-fit: cover;
+        margin-bottom: 19px;
+    }
+
+    div {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+    }
+
+    p {
+        font-size: 11px;
+        margin-top: 5px;
+    }
+`;
+
+const IconLike = styled.div`
+    width: 22px;
+    height: 20px;
+    scale: 0.9;
+
+    &:hover{
+        scale: 1;
+        opacity: 0.8;
+    }
+
+    &:active {
+        transform: translateY(1px);
+    }
 `;
 
 const PostsSections = styled.div`

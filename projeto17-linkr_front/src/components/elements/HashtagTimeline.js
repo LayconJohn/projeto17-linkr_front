@@ -33,7 +33,7 @@ export default function HashtagTimeline() {
     //render
     return (
         <>  
-            <Header />
+            <Header />  
             <TitleHashtag>
                 # {hashtag}
             </TitleHashtag>
@@ -45,6 +45,7 @@ export default function HashtagTimeline() {
                         username={publication.username}
                         description={publication.description}
                         link={publication.link}
+                        likes={publication.likes}
                     />
                     })
                 }
