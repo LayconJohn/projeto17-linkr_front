@@ -21,8 +21,8 @@ export default function HashtagTimeline() {
         //console.log(hashtag)
         listPublicationsByHashtag(hashtag)
             .then((res) => {
-                console.log('Rota para: ' + hashtag)
-                console.log(res.data)
+                //console.log('Rota para: ' + hashtag)
+                //console.log(res.data)
                 setPublications(res.data);
             })
             .catch((err) => {
@@ -42,10 +42,12 @@ export default function HashtagTimeline() {
                 {publications.length === 0 ? "Não existem publicações com essa hashtag" :
                 publications.map((publication) => {
                     return <PostSection 
+                        key={publication.id}
                         username={publication.username}
                         description={publication.description}
                         link={publication.link}
                         likes={publication.likes}
+                        publicationId={publication.id}
                     />
                     })
                 }

@@ -17,4 +17,9 @@ function listPublicationsByHashtag(hashtag) {
   return promisse;
 }
 
-export {listTrendingHashtags, listPublicationsByHashtag}
+function listHashtagsByPublication(publicationId) {
+  const promisse = axios.get(`${BASE_URL}/hashtag/publication/${publicationId}`)
+  return promisse;
+}
+
+export {listTrendingHashtags, listPublicationsByHashtag, listHashtagsByPublication}

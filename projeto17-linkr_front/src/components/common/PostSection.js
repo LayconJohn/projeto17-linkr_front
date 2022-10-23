@@ -1,8 +1,35 @@
 import styled from "styled-components";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+import { listHashtagsByPublication } from "../../services/linkr";
 
 import { AiOutlineHeart } from "react-icons/ai";
 
-export default function PostSection({ username, description, link, likes }) {
+export default function PostSection({ username, description, link, likes, publicationId }) {
+    //state
+    const [hashtags, setHashtags] = useState([]);
+
+    //hooks
+    const navigate = useNavigate();
+
+    //logic
+    function getHashtagsByPublicationId(publicationId) {
+
+    }
+
+    useEffect(() => {
+        listHashtagsByPublication(publicationId)
+            .then((res) => {
+                //console.log(hashtags)
+                setHashtags(res.data);
+            })
+            .catch((err) => {
+                console.log(err);
+            })
+    }, [])
+
+    //render
     return (
         <PostsSections>
 
@@ -21,7 +48,11 @@ export default function PostSection({ username, description, link, likes }) {
                         <h2>{username}</h2>
                     </UserName>
                     <Description>
-                        <h3>{description}</h3>
+                        <h3> {description} </h3>
+                        {hashtags.map(hashtag => {
+                            return <Hashtag key={hashtag.id} onClick={() => navigate(`/hashtag/${hashtag.name}`)}>
+                                #{hashtag.name} </Hashtag>
+                        })}
                     </Description>
                 </PostInfos>
                 
@@ -145,6 +176,23 @@ const UserName = styled.div`
 const Description = styled.div`
     height: 60%;
     font-size: 22px;
+`;
+
+const Hashtag = styled.span`
+
+    scale: 0.9;
+    font-weight: bold;
+    cursor: pointer;
+ 
+
+    &:hover {
+        scale: 1;
+        opacity: 1.1;
+    }
+
+    &:active {
+        transform: translateY(1px);
+    }
 `;
 
 const PostContent = styled.div`

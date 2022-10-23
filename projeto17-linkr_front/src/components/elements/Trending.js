@@ -1,7 +1,6 @@
 import styled from "styled-components";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import ReactHashtag from "@mdnm/react-hashtag";
 
 import { listTrendingHashtags } from "../../services/linkr.js";
 
