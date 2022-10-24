@@ -6,6 +6,7 @@ import Timeline from "./elements/Timeline";
 
 import "../styles/reset.css";
 import "../styles/style.css";
+import SignUp from "./elements/SignUp";
 
 
 function App() {
@@ -14,8 +15,8 @@ function App() {
             <BrowserRouter>
                 <Routes>
                     <Route element={<ProtectedSignIn />}>
-                        <Route path="/sign-in" element={<SignInPage />} />
-                        <Route path="/sign-up" element={<SignUpPage />} />
+                       {/*  <Route path="/sign-in" element={<SignIn />} /> */}
+                        <Route path="/sign-up" element={<SignUp />} />
                     </Route>
                     <Route path="/publish" element={<Timeline />} />
                     <Route path="/" element={<Test />} />
