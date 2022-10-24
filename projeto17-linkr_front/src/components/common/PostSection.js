@@ -2,21 +2,45 @@ import styled from "styled-components";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { listHashtagsByPublication, likePublication } from "../../services/linkr";
+import { listHashtagsByPublication, likePublication, verifyIdPublicationIsLiked } from "../../services/linkr";
 
-import { AiOutlineHeart } from "react-icons/ai";
+import { AiOutlineHeart, AiFillHeart } from "react-icons/ai";
 
 export default function PostSection({ username, description, link, likes, publicationId }) {
     //state
     const [hashtags, setHashtags] = useState([]);
+    const [like, setLike] = useState('');
 
     //hooks
     const navigate = useNavigate();
 
     //logic
     function likePost() {
-        
+        const authenticator = JSON.parse(localStorage.getItem('linkr'));
+        likePublication({token: "token2", publicationId})
+            .then((res) => {
+                console.log(res.status);
+                if (res.status === 201) {
+                    setLike(true);
+                } 
+                if (res.status === 204) {
+                    setLike(false);
+                }
+            })
+            .catch((err) => console.log(err))
     }
+
+    useEffect(() => {
+        const authenticator = JSON.parse(localStorage.getItem('linkr'));
+        verifyIdPublicationIsLiked({token: "token2", publicationId})
+        .then((res) => {
+            console.log(res.data.isLiked);
+            setLike(res.data)
+        })
+        .catch((err)=> {
+            console.log(err);
+        })
+    }, [])
 
     useEffect(() => {
         listHashtagsByPublication(publicationId)
@@ -27,7 +51,8 @@ export default function PostSection({ username, description, link, likes, public
             .catch((err) => {
                 console.log(err);
             })
-    }, [])
+
+    }, [like])
 
     //render
     return (
@@ -36,7 +61,7 @@ export default function PostSection({ username, description, link, likes, public
             <ProfilePicture>
                 <img src="https://img.r7.com/images/meme-sorriso-forcado-hide-the-pain-harold-maurice-andras-arato-08112019141226221" alt="perfil"/>
                 <div>
-                    <IconLike> <AiOutlineHeart/> </IconLike>
+                    <IconLike onClick={likePost} isLiked={like}> {like ? <AiFillHeart /> :<AiOutlineHeart/> } </IconLike>
                     <p>{likes} likes</p>
                 </div>
             </ProfilePicture>
@@ -109,6 +134,7 @@ const IconLike = styled.div`
     width: 22px;
     height: 20px;
     scale: 0.9;
+    color: ${props => props.isLiked ? "#AC0000" : "#FFFFFF"};
 
     &:hover{
         scale: 1;

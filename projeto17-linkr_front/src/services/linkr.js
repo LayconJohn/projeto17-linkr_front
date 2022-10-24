@@ -28,8 +28,18 @@ function likePublication({token, publicationId}) {
       Authorization: `Bearer ${token}`,
     },
   };
-  const promisse = axios.post(`${BASE_URL}/like/${publicationId}`);
+  const promisse = axios.post(`${BASE_URL}/like/${publicationId}`, null, config);
   return promisse;
 }
 
-export {listTrendingHashtags, listPublicationsByHashtag, listHashtagsByPublication, likePublication}
+function verifyIdPublicationIsLiked({token, publicationId}) {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+  const promisse = axios.get(`${BASE_URL}/like/${publicationId}/isLiked`, config);
+  return promisse;
+}
+
+export {listTrendingHashtags, listPublicationsByHashtag, listHashtagsByPublication, likePublication, verifyIdPublicationIsLiked}
