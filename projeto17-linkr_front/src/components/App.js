@@ -1,7 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import ProtectedSignIn from "../services/ProtectedSignIn";
 
-import { Test } from "./elements/Test";
 import Timeline from "./elements/Timeline";
 import HashtagTimeline from "./elements/HashtagTimeline";
 
@@ -18,12 +17,11 @@ function App() {
             <BrowserRouter>
                 <Routes>
                     <Route element={<ProtectedSignIn />}>
-                        <Route path="/sign-in" element={<SignIn />} />
+                        <Route path="/" element={<SignIn />} />
                         <Route path="/sign-up" element={<SignUp />} />
                     </Route>
                     <Route path="/publish" element={<Timeline />} />
                     <Route path="/hashtag/:hashtag" element={<HashtagTimeline />} />
-                    <Route path="/" element={<Test />} />
                 </Routes>
             </BrowserRouter>
         </>

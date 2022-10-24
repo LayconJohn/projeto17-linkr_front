@@ -35,7 +35,7 @@ function SignUp() {
         try {
             const promise = await axios.post(`${BASE_URL}/sign-up`, body);
             console.log(promise)
-            navigate("/sign-in");
+            navigate("/");
         }
         catch (error) {
             console.log(error);
@@ -60,7 +60,7 @@ function SignUp() {
                         </Inputs>
                     </form>
 
-                    <Link to="/sign-in">
+                    <Link to="/">
                         <LinkWrap>
                             Switch back to log in
                         </LinkWrap>
