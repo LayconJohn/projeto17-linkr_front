@@ -1,7 +1,6 @@
 import styled from "styled-components";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import ReactHashtag from "@mdnm/react-hashtag";
 
 import { listTrendingHashtags } from "../../services/linkr.js";
 
@@ -16,7 +15,7 @@ export default function Trending() {
     useEffect(() => {
         listTrendingHashtags()
             .then((res) => {
-                console.log(res.data);
+                //console.log(res.data);
                 sethashtags(res.data);
             })
             .catch((err) => {
@@ -43,8 +42,8 @@ const TrendingSpace = styled.div`
     height: 406px;
     background-color: #171717;
     color: #FFFFFF;
-    position: fixed;
-    top: 115px;
+    position: absolute;
+    top: 4px;
     right: 100px;
     border-radius: 16px;
 
