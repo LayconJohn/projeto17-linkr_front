@@ -5,8 +5,9 @@ import { useState } from "react";
 import { LinkWrap } from "./SignUp";
 import Cover from "../common/Cover";
 import { Wrapper } from "./SignUp";
-import { postSignIn } from "../../services/linkr";
+import axios from "axios";
 
+const BASE_URL = "http://localhost:4000";
 
 
 function SignIn() {
@@ -18,8 +19,9 @@ function SignIn() {
 
     const navigate = useNavigate();
 
+    
 
-    function LogIn(e) {
+    async function LogIn(e) {
         e.preventDefault();
         setDisable(true);
         setTextButton("...")
@@ -28,27 +30,22 @@ function SignIn() {
             email, password
         }
 
-
-        postSignIn(body).then(response => {
-            const { data } = response
-            console.log(data)
-            const memberSerializado = JSON.stringify({ ...data })
+        try {
+            const promise = await axios.post(`${BASE_URL}/sign-in`, body);
+            console.log(promise.data);
+            const memberSerializado = JSON.stringify({ ... promise.data })
             localStorage.setItem('linkr', memberSerializado)
             const memberStorage = JSON.parse(localStorage.getItem('linkr'));
             setMember(memberStorage)
             navigate("/");
 
-        })
-        postSignIn(body).catch(response => {
-            const { data } = response
-            console.log(data);
-            alert("Usuário não encontrado")
+        } catch (error) {
+            console.log(error.message);
+            window.alert("Não foi possível realizar o login")
             window.location.reload(false);
-        })
+        }
 
     }
-
-
 
     return (
         <>
@@ -57,8 +54,8 @@ function SignIn() {
                 <Container>
                     <form onSubmit={LogIn}>
                         <Inputs>
-                            <input disabled={disable} type="email" placeholder="e-mail" value={email} onChange={e => setEmail(e.target.value)} />
-                            <input disabled={disable} type="password" placeholder="password" value={password} onChange={e => setPassword(e.target.value)} />
+                            <input required disabled={disable} type="email" placeholder="e-mail" value={email} onChange={e => setEmail(e.target.value)} />
+                            <input required disabled={disable} type="password" placeholder="password" value={password} onChange={e => setPassword(e.target.value)} />
                             <button type="submit">{textButton}</button>
                         </Inputs>
                     </form>

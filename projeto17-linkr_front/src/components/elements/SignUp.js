@@ -3,10 +3,11 @@ import { Link, useNavigate } from "react-router-dom";
 import Container from "../common/Container";
 import Inputs from "../common/Inputs";
 import styled from "styled-components";
-import { postSignUp } from "../../services/linkr";
 import Cover from "../common/Cover";
+import axios from "axios";
 
 
+const BASE_URL = "http://localhost:4000";
 
 
 function SignUp() {
@@ -22,7 +23,7 @@ function SignUp() {
 
 
 
-    function handleCadastrar(e) {
+    async function handleCadastrar(e) {
         e.preventDefault();
         setDisable(true);
         setTextButton("...")
@@ -31,24 +32,17 @@ function SignUp() {
             email, username, password, image
         }
 
-
-        postSignUp(body).then(response => {
-            console.log(response)
+        try {
+            const promise = await axios.post(`${BASE_URL}/sign-up`, body);
+            console.log(promise)
             navigate("/sign-in");
-        })
+        }
+        catch (error) {
+            console.log(error);
+            window.alert("Não foi possível cadastrar seu usuário")
 
-        postSignUp(body).catch(() => {
-            alert("Não foi possível realizar o cadastro")
-            window.location.reload(false)
-        })
-
-
+        }
     }
-
-
-
-
-
 
     return (
 
@@ -58,12 +52,10 @@ function SignUp() {
                 <Container>
                     <form onSubmit={handleCadastrar}>
                         <Inputs>
-                            <input disabled={disable} type="email" placeholder="e-mail" value={email} onChange={e => setEmail(e.target.value)} />
-                            <input disabled={disable} type="password" placeholder="password" value={password} onChange={e => setPassword(e.target.value)} />
-                            <input disabled={disable} type="text" placeholder="username" value={username} onChange={e => setUsername(e.target.value)} />
-
-
-                            <input disabled={disable} type="text" placeholder="picture url" value={image} onChange={e => setImage(e.target.value)} />
+                            <input required disabled={disable} type="email" placeholder="e-mail" value={email} onChange={e => setEmail(e.target.value)} />
+                            <input required disabled={disable} type="password" placeholder="password" value={password} onChange={e => setPassword(e.target.value)} />
+                            <input required disabled={disable} type="text" placeholder="username" value={username} onChange={e => setUsername(e.target.value)} />
+                            <input required disabled={disable} type="text" placeholder="picture url" value={image} onChange={e => setImage(e.target.value)} />
                             <button disabled={disable} type="submit">{textButton}</button>
                         </Inputs>
                     </form>
