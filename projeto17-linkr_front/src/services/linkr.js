@@ -12,6 +12,15 @@ function listTrendingHashtags() {
   return promisse;
 }
 
+function listPublicationsByHashtag(hashtag) {
+  const promisse = axios.get(`${BASE_URL}/hashtag/${hashtag}`);
+  return promisse;
+}
+
+function listHashtagsByPublication(publicationId) {
+  const promisse = axios.get(`${BASE_URL}/hashtag/publication/${publicationId}`)
+  return promisse;
+}
 
 function createHeaders() {
   const auth = JSON.parse(localStorage.getItem('linkr'));
@@ -25,4 +34,5 @@ function createHeaders() {
 }
 
 
-export { listTrendingHashtags, createHeaders}
+export {listTrendingHashtags, listPublicationsByHashtag, listHashtagsByPublication, createHeaders}
+
