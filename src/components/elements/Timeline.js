@@ -50,6 +50,7 @@ export default function Timeline(){
         }
 
         const body = { link, description };
+
         const config = {
             header: {
                 "Authorization": `Bearer ${"token"}`
@@ -59,6 +60,7 @@ export default function Timeline(){
         try {
             await axios.post("http://localhost:5000/timeline", body, config);
             window.alert("Postagem feita com sucesso!");
+
         } catch (error) {
             console.log(error);
             return window.alert("Houve um erro ao publicar seu link.")
@@ -113,19 +115,19 @@ export default function Timeline(){
                         publications.map( (publication, index) => {
 
 
-                            const { username, image, link, description, whoLiked } = publication;
+                            const { username, link, description, whoLiked, profilePicture } = publication;
 
                             return(
-                                <Publication>
+                                <Publication key={index}>
                                     <User>
                                         <ProfilePicture>
-                                            <img src={image} alt={image} />
+                                            <img src={profilePicture} alt={profilePicture} />
                                         </ProfilePicture>
                                         <AiOutlineHeart/>
-                                        <Likes>{whoLiked.length}</Likes>
+                                        <Likes>{whoLiked}</Likes>
                                     </User>
 
-                                    <PublicationContent key={index}>
+                                    <PublicationContent>
                                         <PostInfos>
                                             <UserName>
                                                 <h2>{username}</h2>
@@ -137,7 +139,7 @@ export default function Timeline(){
                                         
                                         <PostContent>
 
-                                            <LinkInfos>
+                                            <LinkInfos description={description}>
                                                 <h3>Como aplicar o Material UI em um projeto React</h3>
                                                 <h4>
                                                     Hey! I have moved this tutorial to my personal blog. 
@@ -339,11 +341,8 @@ const PublicationContent = styled.div`
 `;
 
 const PostInfos = styled.div`
-
+    height: 100%;
     width: 100%;
-
-    display: grid;
-    grid-template-rows: 1fr 4fr;
     
     overflow:hidden;
     text-overflow: ellipsis;
@@ -364,7 +363,7 @@ const UserName = styled.div`
 `;
 
 const Description = styled.div`
-
+    height: 80%;
     width: 100%;
     display: flex;
     align-items: center;
@@ -375,6 +374,7 @@ const Description = styled.div`
 
 const PostContent = styled.div`
     width: 100%;
+    height: 73%;
 
     display: flex;
     flex-direction: row;
@@ -387,7 +387,7 @@ const PostContent = styled.div`
 
 const LinkInfos = styled.div`
     height: 100%;
-    width: 70%;
+    width: ${(props) => props.description? '70%' : '73%'};
 
     padding: 20px 20px;
     box-sizing: border-box;
