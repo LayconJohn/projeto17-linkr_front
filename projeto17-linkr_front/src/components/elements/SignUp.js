@@ -5,9 +5,9 @@ import Inputs from "../common/Inputs";
 import styled from "styled-components";
 import Cover from "../common/Cover";
 import axios from "axios";
+import { BASE_URL } from "../../services/linkr";
 
 
-const BASE_URL = "http://localhost:4000";
 
 
 function SignUp() {

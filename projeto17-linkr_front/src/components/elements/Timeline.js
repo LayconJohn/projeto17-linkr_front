@@ -6,6 +6,7 @@ import Header from "../common/Header";
 import Trending from "./Trending";
 
 import { AiOutlineHeart } from "react-icons/ai";
+import { BASE_URL } from "../../services/linkr";
 
 export default function Timeline(){
 
@@ -26,13 +27,13 @@ export default function Timeline(){
 
         const body = { link, description };
         const config = {
-            header: {
+            headers: {
                 "Authorization": `Bearer ${"token"}`
             }
         };
 
         try {
-            await axios.post("http://localhost:5000/publish", body, config);
+            await axios.post(`${BASE_URL}/publish`, body, config);
             window.alert("Postagem feita com sucesso!");
         } catch (error) {
             console.log(error);

@@ -6,8 +6,8 @@ import { LinkWrap } from "./SignUp";
 import Cover from "../common/Cover";
 import { Wrapper } from "./SignUp";
 import axios from "axios";
+import { BASE_URL } from "../../services/linkr";
 
-const BASE_URL = "http://localhost:4000";
 
 
 function SignIn() {
