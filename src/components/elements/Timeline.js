@@ -2,11 +2,11 @@ import { useState, useEffect } from "react";
 
 import axios from "axios";
 import styled from "styled-components";
-import Header from "../common/Header";
-
 import { AiOutlineHeart } from "react-icons/ai";
 
 import { BASE_URL } from "../../services/linkr";
+import Header from "../common/Header";
+
 
 export default function Timeline(){
 
@@ -25,7 +25,7 @@ export default function Timeline(){
 
             try {
                 
-                const publicationsData = await axios.get("http://localhost:5000/timeline");
+                const publicationsData = await axios.get(`${BASE_URL}/timeline`);
                 setPublications(publicationsData.data)
 
             } catch (error) {
