@@ -10,6 +10,8 @@ export default function Timeline(){
 
     const [ publications, setPublications ] = useState(null);
 
+    const [ likesPublication, setLikesPublication ] = useState(null);
+
     const [ newPublicationData, setNewPublicationData ] = useState({
         link: null, 
         description: null
@@ -22,7 +24,7 @@ export default function Timeline(){
             try {
                 
                 const publicationsData = await axios.get("http://localhost:5000/timeline");
-                setPublications(publicationsData.data);
+                setPublications(publicationsData.data)
 
             } catch (error) {
 
@@ -123,8 +125,15 @@ export default function Timeline(){
                                         <ProfilePicture>
                                             <img src={profilePicture} alt={profilePicture} />
                                         </ProfilePicture>
-                                        <AiOutlineHeart/>
-                                        <Likes>{whoLiked}</Likes>
+                                        {
+                                            whoLiked?
+                                            <>
+                                                <AiOutlineHeart/>
+                                                <Likes>{whoLiked}</Likes>
+                                            </>
+                                            :
+                                            <></>
+                                        }
                                     </User>
 
                                     <PublicationContent>
