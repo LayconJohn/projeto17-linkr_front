@@ -1,25 +1,51 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import axios from "axios";
 import styled from "styled-components";
 import Header from "../common/Header";
-import Trending from "./Trending";
 
 import { AiOutlineHeart } from "react-icons/ai";
-import { BASE_URL } from "../../services/linkr";
 
 export default function Timeline(){
 
-    const [ publicationData, setPublicationData ] = useState({
+    const [ publications, setPublications ] = useState(null);
+
+    const [ likesPublication, setLikesPublication ] = useState(null);
+
+    const [ newPublicationData, setNewPublicationData ] = useState({
         link: null, 
         description: null
     });
+
+     useEffect(() => {
+
+        async function listPublications(){
+
+            try {
+                
+                const publicationsData = await axios.get("http://localhost:5000/timeline");
+                setPublications(publicationsData.data)
+
+            } catch (error) {
+
+                console.log(error.message);
+
+                return(
+                    window.alert(
+                        "An error occured while trying to fetch the posts, please refresh the page"
+                    )
+                )
+            }
+        }
+
+        listPublications();
+     });
 
     async function sendPublication(event){
 
         event.preventDefault();
 
-        const { link, description } = publicationData;
+        const { link, description } = newPublicationData;
 
         if(link === null){
             return window.alert("o campo 'link' é obrigatório!");
@@ -27,29 +53,28 @@ export default function Timeline(){
 
         const body = { link, description };
         const config = {
-            headers: {
+            header: {
                 "Authorization": `Bearer ${"token"}`
             }
         };
 
         try {
-            await axios.post(`${BASE_URL}/publish`, body, config);
+            await axios.post("http://localhost:5000/timeline", body, config);
             window.alert("Postagem feita com sucesso!");
         } catch (error) {
             console.log(error);
-            return window.alert(error.message)
+            return window.alert("Houve um erro ao publicar seu link.")
         }
-
     }
 
     return(
         <>
-            <Header/>
+            <Header />
             <Container>
                 <PublishSection>
 
                     <ProfilePicture>
-
+                        <img src={''} alt={''} />
                     </ProfilePicture>
 
                     <Publish>
@@ -65,14 +90,14 @@ export default function Timeline(){
                                 type="text"
                                 name="link"
                                 placeholder="http://..."
-                                onChange={e => setPublicationData({...publicationData, link: e.target.value})}
+                                onChange={e => setNewPublicationData({...newPublicationData, link: e.target.value})}
                             />
 
                             <input 
                                 type="text"
                                 name="description"
                                 placeholder="Awesome article about #javascript"
-                                onChange={e => setPublicationData({...publicationData, description: e.target.value})}
+                                onChange={e => setNewPublicationData({...newPublicationData, description: e.target.value})}
                             />
                             <button type="onSubmit">Publish</button>
                         </Form>
@@ -81,62 +106,99 @@ export default function Timeline(){
                     
                 </PublishSection>
 
-                <PostsSections>
+                {
+                    publications?
+                    
+                    <PostsSections>
 
-                    <ProfilePicture>
-                        <AiOutlineHeart/>
-                    </ProfilePicture>
+                    {
+                        publications.map( (publication, index) => {
 
 
-                    <Post>
-                        <PostInfos>
-                            <UserName>
-                                <h2>Nome do Usuário</h2>
-                            </UserName>
-                            <Description>
-                                <h3>Muito maneiro esse tutorial de Material UI com React, deem uma olhada! #react #material</h3>
-                            </Description>
-                        </PostInfos>
-                        
-                        <PostContent>
+                            const { username, image, link, description, whoLiked } = publication;
 
-                            <LinkInfos>
-                                <h3>Como aplicar o Material UI em um projeto React</h3>
-                                <h4>
-                                    Hey! I have moved this tutorial to my personal blog. 
-                                    Same content, new location. 
-                                    Sorry about making you click through to another page.
-                                </h4>
-                                <h5>https://medium.com/@pshrmn/a-simple-react-router</h5>
-                            </LinkInfos>
-                            <ImageLink>
+                            return(
+                                <Publication key={index}>
+                                    <User>
+                                        <ProfilePicture>
+                                            <img src={image} alt={image} />
+                                        </ProfilePicture>
+                                        {
+                                            whoLiked?
+                                            <>
+                                                <AiOutlineHeart/>
+                                                <Likes>{whoLiked}</Likes>
+                                            </>
+                                            :
+                                            <></>
+                                        }
+                                    </User>
 
-                            </ImageLink>
+                                    <PublicationContent key={index}>
+                                        <PostInfos>
+                                            <UserName>
+                                                <h2>{username}</h2>
+                                            </UserName>
+                                            <Description>
+                                                <h3>{description}</h3>
+                                            </Description>
+                                        </PostInfos>
+                                        
+                                        <PostContent>
 
-                        </PostContent>
-                        
-                    </Post>              
-                </PostsSections>
+                                            <LinkInfos>
+                                                <h3>Como aplicar o Material UI em um projeto React</h3>
+                                                <h4>
+                                                    Hey! I have moved this tutorial to my personal blog. 
+                                                    Same content, new location. 
+                                                    Sorry about making you click through to another page.
+                                                </h4>
+                                                <h5>{link}</h5>
+                                            </LinkInfos>
+                                            <ImageLink>
 
+                                            </ImageLink>
+
+                                        </PostContent>
+                                        
+                                    </PublicationContent> 
+                                </Publication>     
+                            )
+                            
+                        })
+                    }            
+
+                    </PostsSections> 
+                    :
+                    <p>There are no posts yet</p>
+                }
+                
+
+                
             </Container>
-
-            <Trending />
         </>
     );
 } 
 
 const Container = styled.div`
+    height: 100%;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     margin-top: 15vh;
+    z-index: 1;
 `;
 
 const ProfilePicture = styled.div`
-    height: 100%;
-    width: 60px;
-    background-color: #876525;
+    height: 45px;
+    width: 45px;
+    img{
+        height: 100%;
+        width: 100%;
+        border-radius: 100%;
+    }
+    
 `;
 
 const PublishSection = styled.div`
@@ -206,6 +268,7 @@ const Form = styled.form`
         width: 150px; 
 
         background: #1877F2;
+        border: none;
         border-radius: 5px;
         color: #FFFFFF;
 
@@ -218,30 +281,63 @@ const Form = styled.form`
 // Posts
 
 const PostsSections = styled.div`
-    height: 330px;
+    height: 100%;
     width: 40%;
-    padding: 20px;
     box-sizing: border-box;
-    margin-bottom: 30px;
+    ]margin-bottom: 30px;
 
     display: flex;
-    flex-direction: row;
-    justify-content: center;
+    flex-direction: column;
+    justify-content: space-between;
     align-items: center;
 
     font-family: 'Lato', sans-serif;
     font-weight: 300;
     color: #FFFFFF;
 
+`;
+
+const Publication = styled.div`
+    height: 250px;
+    width: 100%;
+    margin-bottom: 8%;
+    padding: 20px;
+    box-sizing: border-box;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+
     background: #171717;
     border-radius: 15px;
     box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+
+    position: relative;
+
 `;
 
-const Post = styled.div`
+const User = styled.div`
+    height: 40%;
+    width: 20%;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+
+    svg{
+        font-size: 20px;
+    }
+
+`;
+
+const Likes = styled.div`
+
+`;
+
+const PublicationContent = styled.div`
     height: 100%;
     width: 100%;
-    padding-left: 8%;
 
     display: flex;
     flex-direction: column;
@@ -252,13 +348,15 @@ const Post = styled.div`
 `;
 
 const PostInfos = styled.div`
-    height: 35%;
+
     width: 100%;
 
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: left;
+    display: grid;
+    grid-template-rows: 1fr 4fr;
+    
+    overflow:hidden;
+    text-overflow: ellipsis;
+    white-space: wrap;
 
     h3{
         color: #B7B7B7;
@@ -266,17 +364,25 @@ const PostInfos = styled.div`
 `;
     
 const UserName = styled.div`
-    height: 35%;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+
     font-size: 22px;
 `;
 
 const Description = styled.div`
-    height: 60%;
-    font-size: 22px;
+
+    width: 100%;
+    display: flex;
+    align-items: center;
+    font-size: 17px;
+    flex-wrap: wrap;
+    overflow: hidden;
 `;
 
 const PostContent = styled.div`
-    height: 60%;
     width: 100%;
 
     display: flex;
@@ -292,7 +398,7 @@ const LinkInfos = styled.div`
     height: 100%;
     width: 70%;
 
-    padding: 25px 20px;
+    padding: 20px 20px;
     box-sizing: border-box;
 
     display: flex;
@@ -306,7 +412,7 @@ const LinkInfos = styled.div`
     }
     h4{
         color: #9B9595;
-        line-height: 15px;
+        line-height: 16px;
     }
     h4, h5{
         font-size: 12px;
@@ -318,4 +424,5 @@ const ImageLink = styled.div`
     height: 100%;
     width: 30%;
     background-color: blue;
+    border-radius: 0 8px  8px 0;
 `;
