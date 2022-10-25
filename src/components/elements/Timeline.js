@@ -6,6 +6,8 @@ import Header from "../common/Header";
 
 import { AiOutlineHeart } from "react-icons/ai";
 
+import { BASE_URL } from "../../services/linkr";
+
 export default function Timeline(){
 
     const [ publications, setPublications ] = useState(null);
@@ -59,7 +61,7 @@ export default function Timeline(){
         };
 
         try {
-            await axios.post("http://localhost:5000/timeline", body, config);
+            await axios.post(`${BASE_URL}/timeline`, body, config);
             window.alert("Postagem feita com sucesso!");
         } catch (error) {
             console.log(error);
