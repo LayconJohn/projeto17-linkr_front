@@ -7,6 +7,7 @@ const Auth = () => {
     return authenticator
 }
 
+
 const ProtectedSignIn = () => {
     const isAuth = Auth()
 
