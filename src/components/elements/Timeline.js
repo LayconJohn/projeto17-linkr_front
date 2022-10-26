@@ -3,16 +3,17 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import styled from "styled-components";
 import { AiOutlineHeart } from "react-icons/ai";
+import { useScrapper } from "react-tiny-link";
+import { TailSpin } from "react-loader-spinner";
 
 import { BASE_URL } from "../../services/linkr";
 import Header from "../common/Header";
-
 
 export default function Timeline(){
 
     const [ publications, setPublications ] = useState(null);
 
-    const [ likesPublication, setLikesPublication ] = useState(null);
+    const [ loadingPublication, setLoadingPublication ] = useState(true);
 
     const [ newPublicationData, setNewPublicationData ] = useState({
         link: null, 
@@ -21,26 +22,21 @@ export default function Timeline(){
 
      useEffect(() => {
 
-        async function listPublications(){
+        const promise = axios.get(`http://localhost:4000/timeline`);
+        promise.then( res => {
+            setLoadingPublication(false);
+            setPublications(res.data);
+        });
+        promise.catch( error => {
 
-            try {
-                
-                const publicationsData = await axios.get(`${BASE_URL}/timeline`);
-                setPublications(publicationsData.data)
-
-            } catch (error) {
-
-                console.log(error.message);
-
-                return(
-                    window.alert(
-                        "An error occured while trying to fetch the posts, please refresh the page"
-                    )
+            console.log("ERROR")
+            return(
+                window.alert(
+                    "An error occured while trying to fetch the posts, please refresh the page"
                 )
-            }
-        }
+            )
+        });
 
-        listPublications();
      });
 
     async function sendPublication(event){
@@ -53,7 +49,7 @@ export default function Timeline(){
             return window.alert("o campo 'link' é obrigatório!");
         }
 
-        const body = { link, description };
+        const body = { link, description, userId: 1 };
         const config = {
             header: {
                 "Authorization": `Bearer ${"token"}`
@@ -61,7 +57,9 @@ export default function Timeline(){
         };
 
         try {
-            await axios.post(`${BASE_URL}/timeline`, body, config);
+            /* await axios.post(`${BASE_URL}/timeline`, body, config); */
+
+            await axios.post(`http://localhost:4000/timeline`, body, config);
             window.alert("Postagem feita com sucesso!");
         } catch (error) {
             console.log(error);
@@ -109,74 +107,86 @@ export default function Timeline(){
                 </PublishSection>
 
                 {
+                    loadingPublication?
+
+                    <TailSpin
+                    height="80"
+                    width="80"
+                    color="#4fa94d"
+                    ariaLabel="tail-spin-loading"
+                    radius="1"
+                    wrapperStyle={{}}
+                    wrapperClass=""
+                    visible={true}
+                    />
+
+                    :
                     publications?
-                    
+                        
                     <PostsSections>
 
-                    {
-                        publications.map( (publication, index) => {
-
-
-                            const { username, image, link, description, whoLiked } = publication;
-
-                            return(
-                                <Publication key={index}>
-                                    <User>
-                                        <ProfilePicture>
-                                            <img src={image} alt={image} />
-                                        </ProfilePicture>
-                                        {
-                                            whoLiked?
-                                            <>
-                                                <AiOutlineHeart/>
-                                                <Likes>{whoLiked}</Likes>
-                                            </>
-                                            :
-                                            <></>
-                                        }
-                                    </User>
-
-                                    <PublicationContent key={index}>
-                                        <PostInfos>
-                                            <UserName>
-                                                <h2>{username}</h2>
-                                            </UserName>
-                                            <Description>
-                                                <h3>{description}</h3>
-                                            </Description>
-                                        </PostInfos>
-                                        
-                                        <PostContent>
-
-                                            <LinkInfos>
-                                                <h3>Como aplicar o Material UI em um projeto React</h3>
-                                                <h4>
-                                                    Hey! I have moved this tutorial to my personal blog. 
-                                                    Same content, new location. 
-                                                    Sorry about making you click through to another page.
-                                                </h4>
-                                                <h5>{link}</h5>
-                                            </LinkInfos>
-                                            <ImageLink>
-
-                                            </ImageLink>
-
-                                        </PostContent>
-                                        
-                                    </PublicationContent> 
-                                </Publication>     
-                            )
-                            
-                        })
-                    }            
-
+                        {
+                            publications.map( (publication, index) => {
+    
+    
+                                const { username, link, description, whoLiked, profilePicture } = publication;
+    
+                                return(
+                                    <Publication key={index}>
+                                        <User>
+                                            <ProfilePicture>
+                                                <img src={profilePicture} alt={profilePicture} />
+                                            </ProfilePicture>
+                                            {
+                                                whoLiked?
+                                                <>
+                                                    <AiOutlineHeart/>
+                                                    <Likes>{whoLiked}</Likes>
+                                                </>
+                                                :
+                                                <></>
+                                            }
+                                        </User>
+    
+                                        <PublicationContent key={index}>
+                                            <PostInfos>
+                                                <UserName>
+                                                    <h2>{username}</h2>
+                                                </UserName>
+                                                <Description>
+                                                    <h3>{description}</h3>
+                                                </Description>
+                                            </PostInfos>
+                                            
+                                            <PostContent>
+    
+                                                <LinkInfos>
+                                                    <h3>Como aplicar o Material UI em um projeto React</h3>
+                                                    <h4>
+                                                        Hey! I have moved this tutorial to my personal blog. 
+                                                        Same content, new location. 
+                                                        Sorry about making you click through to another page.
+                                                    </h4>
+                                                    <h5>{link}</h5>
+                                                </LinkInfos>
+                                                <ImageLink>
+    
+                                                </ImageLink>
+    
+                                            </PostContent>
+                                            
+                                        </PublicationContent> 
+                                    </Publication>     
+                                )
+                                
+                            })
+                        }            
+    
                     </PostsSections> 
                     :
                     <p>There are no posts yet</p>
-                }
-                
+                }             
 
-                
             </Container>
         </>
     );
@@ -286,7 +296,7 @@ const PostsSections = styled.div`
     height: 100%;
     width: 40%;
     box-sizing: border-box;
-    ]margin-bottom: 30px;
+    margin-bottom: 30px;
 
     display: flex;
     flex-direction: column;

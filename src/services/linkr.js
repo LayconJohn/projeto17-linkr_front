@@ -1,6 +1,7 @@
 import axios from "axios";
 
-export const BASE_URL = "https://projeto17linkr-backend.herokuapp.com";
+/* export const BASE_URL = "https://projeto17linkr-backend.herokuapp.com"; */
+export const BASE_URL = "http://localhost:4000";
 
 function listTrendingHashtags() {
   /*const config = {
