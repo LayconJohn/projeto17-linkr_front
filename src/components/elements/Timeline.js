@@ -21,7 +21,7 @@ export default function Timeline(){
     });
 
     const [page, setPage] = useState(1);
-    const [hasMore, setHasMore] = useState(null);
+    const [hasMore, setHasMore] = useState(true);
 
      useEffect(() => {
 
@@ -73,11 +73,12 @@ export default function Timeline(){
 
     function loadMorePublications() {
         setLoadingPublication(true);
-        const promise = axios.get(`http://localhost:4000/timeline?page=${2}`);
+        const promise = axios.get(`http://localhost:4000/timeline?page=${page}`);
         promise.then( res => {
             setLoadingPublication(false);
-            setPublications(res.data.publications);
+            setPublications([...publications, ...res.data.publications]);
             setHasMore(res.data.isTheLast);
+            setPage(res.data.page);
         });
         promise.catch( error => {
 
@@ -150,12 +151,12 @@ export default function Timeline(){
                         
                     <PostsSections>
                         <InfiniteScroll
-                            pageStart={page}
+                            //pageStart={page}
                             loadMore={loadMorePublications}
                             hasMore={hasMore}
                             loader={<TailSpin
-                                height="80"
-                                width="80"
+                                height="70"
+                                width="70"
                                 color="#4fa94d"
                                 ariaLabel="tail-spin-loading"
                                 radius="1"
@@ -163,7 +164,11 @@ export default function Timeline(){
                                 wrapperClass=""
                                 visible={true}
                                 />}
-                            useWindow={false}
+                            dataLenght={publications.lenght}
+                            useWindow={true}
+                            endMessage={<p style={{textAling: "center"}}>
+                                <strong>Você já viu todas as publicações</strong>
+                            </p>}
                         >
                         {
                             publications.map( (publication, index) => {
