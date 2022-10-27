@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-
+import InfiniteScroll from 'react-infinite-scroller';
 import axios from "axios";
 import styled from "styled-components";
 import { AiOutlineHeart } from "react-icons/ai";
@@ -20,12 +20,16 @@ export default function Timeline(){
         description: null
     });
 
+    const [page, setPage] = useState(1);
+    const [hasMore, setHasMore] = useState(null);
+
      useEffect(() => {
 
-        const promise = axios.get(`http://localhost:4000/timeline`);
+        const promise = axios.get(`http://localhost:4000/timeline?page=1`);
         promise.then( res => {
             setLoadingPublication(false);
-            setPublications(res.data);
+            setPublications(res.data.publications);
+            setPage(res.data.page);
         });
         promise.catch( error => {
 
@@ -67,9 +71,30 @@ export default function Timeline(){
         }
     }
 
+    function loadMorePublications() {
+        setLoadingPublication(true);
+        const promise = axios.get(`http://localhost:4000/timeline?page=${2}`);
+        promise.then( res => {
+            setLoadingPublication(false);
+            setPublications(res.data.publications);
+            setHasMore(res.data.isTheLast);
+        });
+        promise.catch( error => {
+
+            console.log("ERROR")
+            return(
+                window.alert(
+                    "An error occured while trying to fetch the posts, please refresh the page"
+                )
+            )
+        })
+    }
+
+    //render
     return(
         <>
             <Header />
+            <ScrollPage>
             <Container>
                 <PublishSection>
 
@@ -124,7 +149,22 @@ export default function Timeline(){
                     publications?
                         
                     <PostsSections>
-
+                        <InfiniteScroll
+                            pageStart={page}
+                            loadMore={loadMorePublications}
+                            hasMore={hasMore}
+                            loader={<TailSpin
+                                height="80"
+                                width="80"
+                                color="#4fa94d"
+                                ariaLabel="tail-spin-loading"
+                                radius="1"
+                                wrapperStyle={{}}
+                                wrapperClass=""
+                                visible={true}
+                                />}
+                            useWindow={false}
+                        >
                         {
                             publications.map( (publication, index) => {
     
@@ -180,7 +220,10 @@ export default function Timeline(){
                                 )
                                 
                             })
-                        }            
+                        } 
+                        </InfiniteScroll>
+
+           
     
                     </PostsSections> 
                     :
@@ -188,9 +231,16 @@ export default function Timeline(){
                 }             
 
             </Container>
+            </ScrollPage>
+
         </>
     );
 } 
+
+const ScrollPage = styled.div`
+    height:700px;
+    overflow:auto;
+`;
 
 const Container = styled.div`
     height: 100%;
