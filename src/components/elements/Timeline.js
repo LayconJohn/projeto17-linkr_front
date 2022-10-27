@@ -3,7 +3,8 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import styled from "styled-components";
 import { AiOutlineHeart } from "react-icons/ai";
-import { useScrapper } from "react-tiny-link";
+import { IoTrashSharp } from "react-icons/io5";
+import { ReactTinyLink } from 'react-tiny-link'
 import { TailSpin } from "react-loader-spinner";
 
 import { BASE_URL } from "../../services/linkr";
@@ -13,11 +14,13 @@ export default function Timeline(){
 
     const [ publications, setPublications ] = useState(null);
 
+    const [ publishing, setPublishing ] = useState("");
+
     const [ loadingPublication, setLoadingPublication ] = useState(true);
 
     const [ newPublicationData, setNewPublicationData ] = useState({
-        link: null, 
-        description: null
+        link: "", 
+        description: ""
     });
 
      useEffect(() => {
@@ -29,7 +32,6 @@ export default function Timeline(){
         });
         promise.catch( error => {
 
-            console.log("ERROR")
             return(
                 window.alert(
                     "An error occured while trying to fetch the posts, please refresh the page"
@@ -39,15 +41,26 @@ export default function Timeline(){
 
      });
 
-    async function sendPublication(event){
+    function sendPublication(event){
 
         event.preventDefault();
 
+        setPublishing("disabled");
+
         const { link, description } = newPublicationData;
 
-        if(link === null){
+        if(link === ""){
             return window.alert("o campo 'link' é obrigatório!");
         }
+
+        const expression =  /^https?:\/\/(?:www.)?[-a-zA-Z0-9@:%.+~#=]{1,256}.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%+.~#?&/=]*)/;
+        const regex = new RegExp(expression);
+
+        if (!link.match(regex)) {
+            setPublishing("");
+            return alert("O campo 'http://...' deve ser preenchido com um link!");
+        };
+
 
         const body = { link, description, userId: 1 };
         const config = {
@@ -56,11 +69,29 @@ export default function Timeline(){
             }
         };
 
-        try {
-            /* await axios.post(`${BASE_URL}/timeline`, body, config); */
+        const promise = axios.post(`http://localhost:4000/timeline`, body, config);
 
-            await axios.post(`http://localhost:4000/timeline`, body, config);
+        promise.then( res => {
+            setPublishing("");
             window.alert("Postagem feita com sucesso!");
+            setNewPublicationData({link: "", description: ""});
+        });
+
+        promise.catch( res => {
+            setPublishing("");
+            return window.alert("Houve um erro ao publicar seu link.")
+        });
+    }
+
+    async function deletePublication(publicationId){
+
+        const body = {id: publicationId};
+
+        try {
+
+            await axios.delete(`http://localhost:4000/timeline/publication/${publicationId}`, body);
+            window.alert("Publicação deletada com sucesso!");
+
         } catch (error) {
             console.log(error);
             return window.alert("Houve um erro ao publicar seu link.")
@@ -77,7 +108,7 @@ export default function Timeline(){
                         <img src={''} alt={''} />
                     </ProfilePicture>
 
-                    <Publish>
+                    <Publish disabled={publishing}> 
 
                         <PublicationLabel>
                             <h2>What are you going to share today?</h2>
@@ -89,6 +120,7 @@ export default function Timeline(){
                                 required
                                 type="text"
                                 name="link"
+                                value={newPublicationData.link}
                                 placeholder="http://..."
                                 onChange={e => setNewPublicationData({...newPublicationData, link: e.target.value})}
                             />
@@ -96,10 +128,11 @@ export default function Timeline(){
                             <input 
                                 type="text"
                                 name="description"
+                                value={newPublicationData.description}
                                 placeholder="Awesome article about #javascript"
                                 onChange={e => setNewPublicationData({...newPublicationData, description: e.target.value})}
                             />
-                            <button type="onSubmit">Publish</button>
+                            <button type="onSubmit">{publishing? "Publishing" : "Publish"}</button>
                         </Form>
                     </Publish>
 
@@ -128,8 +161,7 @@ export default function Timeline(){
                         {
                             publications.map( (publication, index) => {
     
-    
-                                const { username, link, description, whoLiked, profilePicture } = publication;
+                                const { id, username, link, description, whoLiked, profilePicture } = publication;
     
                                 return(
                                     <Publication key={index}>
@@ -152,26 +184,25 @@ export default function Timeline(){
                                             <PostInfos>
                                                 <UserName>
                                                     <h2>{username}</h2>
+                                                    <IoTrashSharp onClick={() => deletePublication(id)}/>
+
                                                 </UserName>
                                                 <Description>
                                                     <h3>{description}</h3>
                                                 </Description>
                                             </PostInfos>
-                                            
                                             <PostContent>
     
-                                                <LinkInfos>
-                                                    <h3>Como aplicar o Material UI em um projeto React</h3>
-                                                    <h4>
-                                                        Hey! I have moved this tutorial to my personal blog. 
-                                                        Same content, new location. 
-                                                        Sorry about making you click through to another page.
-                                                    </h4>
-                                                    <h5>{link}</h5>
-                                                </LinkInfos>
-                                                <ImageLink>
-    
-                                                </ImageLink>
+                                                <ReactTinyLink
+                                                    proxyUrl="https://cors-anywhere.herokuapp.com"
+                                                    cardSize="small"
+                                                    width="100%"
+                                                    showGraphic={true}
+                                                    defaultMedia={[]}
+                                                    maxLine={2}
+                                                    minLine={1}
+                                                    url={link}
+                                                />
     
                                             </PostContent>
                                             
@@ -234,7 +265,7 @@ const PublishSection = styled.div`
     box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
 `;
 
-const Publish = styled.div`
+const Publish = styled.fieldset`
     height: 100%;
     width: 100%;
     padding-left: 8%;
@@ -378,10 +409,15 @@ const PostInfos = styled.div`
 const UserName = styled.div`
     width: 100%;
     display: flex;
+    justify-content: space-between;
     align-items: center;
     box-sizing: border-box;
-
     font-size: 22px;
+
+    svg{
+        font-size: 20px;
+        color: #FFFFFF;
+    }
 `;
 
 const Description = styled.div`
@@ -396,7 +432,7 @@ const Description = styled.div`
 
 const PostContent = styled.div`
     width: 100%;
-
+    
     display: flex;
     flex-direction: row;
     justify-content: space-between;
@@ -404,6 +440,11 @@ const PostContent = styled.div`
 
     border: 1px solid #4D4D4D;
     border-radius: 10px;
+
+    a{
+        width: 100%;
+        border-radius: 10px;
+    }
 `;
 
 const LinkInfos = styled.div`
