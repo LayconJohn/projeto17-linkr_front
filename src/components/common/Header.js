@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import { IoIosArrowDown } from "react-icons/io";
+import {DebounceInput} from 'react-debounce-input';
 
 export default function Header(){
     return(
@@ -7,6 +8,10 @@ export default function Header(){
             <div>
                 <h1>linkr</h1>
             </div>
+            {/* <DebounceInput 
+                minLength={3}
+                debounceTimeout={300}
+                onChange={event => this.setState({value: event.target.value})}/> */}
             <div>
                 <IoIosArrowDown/>
                 <img src={''} alt={''}/>
@@ -40,3 +45,20 @@ const TopBar = styled.div`
         font-size: 30px;
     }
 `;
+
+// const DebounceInput = styled.div`
+//     background-color: #FFFFFF;
+//     color: #c6c6c6;
+//     font-family: 'Lato', sans-serif;
+//     font-size: 19px;
+//     font-weight: 400;
+
+//     display: flex;
+//     align-items: center;
+
+//     border-radius: 8px;
+
+//     width: 563px;
+//     height: 45px;
+//     padding-left: 14px;
+// `

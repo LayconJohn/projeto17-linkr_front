@@ -70,7 +70,7 @@ export default function PostSection({ username, description, link, likes, public
             <Post>
                 <PostInfos>
                     <UserName>
-                        <h2>{username}</h2>
+                        <h2 onClick={() => navigate("/profile/:id")}>{username}</h2>
                     </UserName>
                     <Description>
                         <h3> {description} </h3>
