@@ -8,22 +8,23 @@ import { TailSpin } from "react-loader-spinner";
 
 import { BASE_URL } from "../../services/linkr";
 import Header from "../common/Header";
+import NewPostsAdvice from "../common/NewPostsAdvice";
+
+import { getNumberPublications } from "../../services/linkr";
 
 export default function Timeline(){
 
-    const [ publications, setPublications ] = useState(null);
-
+    const [ publications, setPublications ] = useState([]);
     const [ loadingPublication, setLoadingPublication ] = useState(true);
-
     const [ newPublicationData, setNewPublicationData ] = useState({
         link: null, 
         description: null
     });
-
+    const [ newPosts, setNewPosts ] = useState(0);
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
 
-     useEffect(() => {
+    useEffect(() => {
 
         const promise = axios.get(`http://localhost:4000/timeline?page=1`);
         promise.then( res => {
@@ -33,7 +34,7 @@ export default function Timeline(){
         });
         promise.catch( error => {
 
-            console.log("ERROR")
+            console.log(error)
             return(
                 window.alert(
                     "An error occured while trying to fetch the posts, please refresh the page"
@@ -41,7 +42,17 @@ export default function Timeline(){
             )
         });
 
-     });
+    }, []);
+
+    setInterval(() => {
+        const promisse = axios.get("http://localhost:4000/timeline/size");
+        promisse
+        .then(res => {
+            const newPublications = Number(res.data.numberPublications) - publications.length
+            setNewPosts(newPublications);
+        })
+        .catch(err => console.log(err))
+    }, 15000);
 
     async function sendPublication(event){
 
@@ -132,6 +143,8 @@ export default function Timeline(){
                     
                 </PublishSection>
 
+                
+
                 {
                     loadingPublication?
 
@@ -151,7 +164,7 @@ export default function Timeline(){
                         
                     <PostsSections>
                         <InfiniteScroll
-                            //pageStart={page}
+                            pageStart={page}
                             loadMore={loadMorePublications}
                             hasMore={hasMore}
                             loader={<TailSpin
@@ -164,11 +177,7 @@ export default function Timeline(){
                                 wrapperClass=""
                                 visible={true}
                                 />}
-                            dataLenght={publications.lenght}
-                            useWindow={true}
-                            endMessage={<p style={{textAling: "center"}}>
-                                <strong>Você já viu todas as publicações</strong>
-                            </p>}
+                            useWindow={false}
                         >
                         {
                             publications.map( (publication, index) => {
@@ -179,7 +188,7 @@ export default function Timeline(){
                                 return(
                                     <Publication key={index}>
                                         <User>
-                                            <ProfilePicture>
+                                            <ProfilePicture >
                                                 <img src={profilePicture} alt={profilePicture} />
                                             </ProfilePicture>
                                             {
@@ -193,7 +202,7 @@ export default function Timeline(){
                                             }
                                         </User>
     
-                                        <PublicationContent key={index}>
+                                        <PublicationContent >
                                             <PostInfos>
                                                 <UserName>
                                                     <h2>{username}</h2>
@@ -203,9 +212,9 @@ export default function Timeline(){
                                                 </Description>
                                             </PostInfos>
                                             
-                                            <PostContent>
+                                            <PostContent >
     
-                                                <LinkInfos>
+                                                <LinkInfos >
                                                     <h3>Como aplicar o Material UI em um projeto React</h3>
                                                     <h4>
                                                         Hey! I have moved this tutorial to my personal blog. 

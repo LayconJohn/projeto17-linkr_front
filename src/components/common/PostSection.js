@@ -17,7 +17,7 @@ export default function PostSection({ username, description, link, likes, public
     //logic
     function likePost() {
         const authenticator = JSON.parse(localStorage.getItem('linkr'));
-        likePublication({token: "token2", publicationId})
+        likePublication({token: authenticator.token, publicationId})
             .then((res) => {
                 console.log(res.status);
                 if (res.status === 201) {

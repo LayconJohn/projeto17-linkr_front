@@ -54,5 +54,16 @@ function createHeaders() {
   return config;
 }
 
-export {listTrendingHashtags, listPublicationsByHashtag, listHashtagsByPublication, likePublication, verifyIdPublicationIsLiked, createHeaders}
+function getNumberPublications() {
+  /*const { token } = JSON.parse(localStorage.getItem('linkr'));
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  };*/
+  const promisse = axios.get("/timeline/size");
+  return promisse;
+}
+
+export {listTrendingHashtags, listPublicationsByHashtag, listHashtagsByPublication, likePublication, verifyIdPublicationIsLiked, createHeaders, getNumberPublications}
 
