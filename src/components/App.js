@@ -13,6 +13,10 @@ import SignIn from "./elements/SignIn";
 
 
 function App() {
+    let user = {
+        image: "",
+        name: ""
+    }
     return (
         <>
             <BrowserRouter>
@@ -23,7 +27,7 @@ function App() {
                     </Route>
                     <Route path="/publish" element={<Timeline />} />
                     <Route path="/hashtag/:hashtag" element={<HashtagTimeline />} />
-                    <Route path="/profile/:id" element={<ProfileId />} />
+                    <Route path="/profile/:id" element={<ProfileId user={user}/>} />
                 </Routes>
             </BrowserRouter>
         </>

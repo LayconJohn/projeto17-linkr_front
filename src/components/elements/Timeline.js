@@ -286,7 +286,7 @@ const PostsSections = styled.div`
     height: 100%;
     width: 40%;
     box-sizing: border-box;
-    ]margin-bottom: 30px;
+    margin-bottom: 30px;
 
     display: flex;
     flex-direction: column;
