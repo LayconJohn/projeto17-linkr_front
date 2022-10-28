@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 
 import axios from "axios";
 import styled from "styled-components";
+
+import Modal from "react-modal";
 import { AiOutlineHeart } from "react-icons/ai";
 import { IoTrashSharp } from "react-icons/io5";
-import { ReactTinyLink } from 'react-tiny-link'
 import { TailSpin } from "react-loader-spinner";
 
 import { BASE_URL } from "../../services/linkr";
@@ -16,6 +18,8 @@ export default function Timeline(){
 
     const [ publishing, setPublishing ] = useState("");
 
+    const [ deletingPublication, setDeletingPublication ] = useState(false);
+
     const [ loadingPublication, setLoadingPublication ] = useState(true);
 
     const [ newPublicationData, setNewPublicationData ] = useState({
@@ -23,15 +27,45 @@ export default function Timeline(){
         description: ""
     });
 
+    const [modalIsOpen, setIsOpen] = useState(false);
+
+
+    function openModal() {
+        setIsOpen(true);
+        setDeletingPublication(true)
+    }
+
+    function closeModal() {
+        setIsOpen(false);
+        setDeletingPublication(false)
+    }
+
+    const customStyles = {
+        content: {
+          top: '50%',
+          left: '50%',
+          right: 'auto',
+          bottom: 'auto',
+          marginRight: '-50%',
+          transform: 'translate(-50%, -50%)',
+          borderRadius: '30px',
+          height: "300px",
+          width: "450px",
+          
+        },
+      };
+
      useEffect(() => {
 
         const promise = axios.get(`http://localhost:4000/timeline`);
-        promise.then( res => {
-            setLoadingPublication(false);
-            setPublications(res.data);
-        });
-        promise.catch( error => {
 
+        promise.then( res => {
+            setPublications(res.data);
+            setLoadingPublication(false);
+            
+        });
+
+        promise.catch( error => {
             return(
                 window.alert(
                     "An error occured while trying to fetch the posts, please refresh the page"
@@ -39,7 +73,7 @@ export default function Timeline(){
             )
         });
 
-     });
+     }, [publications]);
 
     function sendPublication(event){
 
@@ -83,23 +117,45 @@ export default function Timeline(){
         });
     }
 
-    async function deletePublication(publicationId){
+    async function deletePublication(id){
 
-        const body = {id: publicationId};
+        const body = {id: id};
 
         try {
 
-            await axios.delete(`http://localhost:4000/timeline/publication/${publicationId}`, body);
+            await axios.delete(`http://localhost:4000/timeline/publication/${id}`, body);
             window.alert("Publicação deletada com sucesso!");
 
         } catch (error) {
             console.log(error);
-            return window.alert("Houve um erro ao publicar seu link.")
+            window.alert("Houve um erro ao publicar seu link.");
+        }
+        setIsOpen(false);
+        setDeletingPublication(false);
+        return;
+    }
+
+    async function checkIfImageExists(image, callback){
+
+        const img = new Image();
+        img.src = image;
+
+        if (img.complete) {
+            callback(true);
+        } else {
+            img.onload = () => {
+                callback(true);
+            };
+            
+            img.onerror = () => {
+                callback(false);
+            };
         }
     }
 
     return(
         <>
+            <TransparentSkin deletingPublication={deletingPublication}/>
             <Header />
             <Container>
                 <PublishSection>
@@ -143,14 +199,14 @@ export default function Timeline(){
                     loadingPublication?
 
                     <TailSpin
-                    height="80"
-                    width="80"
-                    color="#4fa94d"
-                    ariaLabel="tail-spin-loading"
-                    radius="1"
-                    wrapperStyle={{}}
-                    wrapperClass=""
-                    visible={true}
+                        height="80"
+                        width="80"
+                        color="#4fa94d"
+                        ariaLabel="tail-spin-loading"
+                        radius="1"
+                        wrapperStyle={{}}
+                        wrapperClass=""
+                        visible={true}
                     />
 
                     :
@@ -161,9 +217,15 @@ export default function Timeline(){
                         {
                             publications.map( (publication, index) => {
     
-                                const { id, username, link, description, whoLiked, profilePicture } = publication;
-    
+                                const { id, username, description, whoLiked, profilePicture, metadata } = publication;
+                                const { title, descriptionLink, image, url } = metadata[0];
+
+                                checkIfImageExists(image, (exists) => {
+                                        return publication = {...publication, isValidImage: exists};
+                                });
+
                                 return(
+                                    <>
                                     <Publication key={index}>
                                         <User>
                                             <ProfilePicture>
@@ -179,36 +241,64 @@ export default function Timeline(){
                                                 <></>
                                             }
                                         </User>
-    
-                                        <PublicationContent key={index}>
+                                        
+                                        <PublicationContent>
                                             <PostInfos>
                                                 <UserName>
                                                     <h2>{username}</h2>
-                                                    <IoTrashSharp onClick={() => deletePublication(id)}/>
+                                                    <IoTrashSharp onClick={ () => openModal()}/>
 
                                                 </UserName>
                                                 <Description>
                                                     <h3>{description}</h3>
                                                 </Description>
                                             </PostInfos>
-                                            <PostContent>
-    
-                                                <ReactTinyLink
-                                                    proxyUrl="https://cors-anywhere.herokuapp.com"
-                                                    cardSize="small"
-                                                    width="100%"
-                                                    showGraphic={true}
-                                                    defaultMedia={[]}
-                                                    maxLine={2}
-                                                    minLine={1}
-                                                    url={link}
-                                                />
-    
-                                            </PostContent>
+                                           
+                                                <PostContent onClick={() => window.open(url, title)}>
+        
+                                                    <LinkInfos>
+                                                        <h3>{title}</h3>
+                                                        <h4>{descriptionLink}</h4>
+                                                        <h5>{url}</h5>
+                                                    </LinkInfos>
+                                                    <ImageLink>
+                                                        <img 
+                                                            src={
+                                                                publication.isValidImage?
+                                                                image
+                                                                :
+                                                                "https://www.abopr.org.br/site/wp-content/themes/abopr/assets/images/noimg.jpg"
+                                                            } alt={image}/>                                                    
+                                                    </ImageLink>
+        
+                                                </PostContent>
                                             
                                         </PublicationContent> 
-                                    </Publication>     
+                                    </Publication>    
+                                    {
+
+                                        deletingPublication?
+                        
+                                        <div>
+                                            <Modal
+                                                isOpen={modalIsOpen}
+                                                onRequestClose={closeModal}
+                                                style={customStyles}
+                                                contentLabel="Example Modal"
+                                            >
+                                                <div>Are you sure you want to delete this post?</div>
+                                                <button onClick={() => deletePublication(id)}>Yes, delete it</button>
+                                                <button onClick={closeModal}>No, go back</button>
+                                            </Modal>
+                                        </div>
+                                        :
+                                        <></>
+                                    }
+                                    </>
+                                     
                                 )
+
+                                
                                 
                             })
                         }            
@@ -216,12 +306,19 @@ export default function Timeline(){
                     </PostsSections> 
                     :
                     <p>There are no posts yet</p>
-                }             
-
+                }
             </Container>
         </>
     );
 } 
+
+const TransparentSkin = styled.div`
+    height: 100%;
+    width: 100%;
+    z-index: 4;
+    background-color: rgba(255,255,255,0.8);
+    display: ${(props) => props.deletingPublication? "none" : ""};
+`; 
 
 const Container = styled.div`
     height: 100%;
@@ -440,6 +537,7 @@ const PostContent = styled.div`
 
     border: 1px solid #4D4D4D;
     border-radius: 10px;
+    cursor: pointer;
 
     a{
         width: 100%;
@@ -478,4 +576,9 @@ const ImageLink = styled.div`
     width: 30%;
     background-color: blue;
     border-radius: 0 8px  8px 0;
+    img{
+        height: 100%;
+        width: 100%;
+        border-radius: 0 6px  6px 0;
+    }
 `;
