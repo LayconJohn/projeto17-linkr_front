@@ -6,6 +6,8 @@ import { AiOutlineHeart } from "react-icons/ai";
 import { useScrapper } from "react-tiny-link";
 import { TailSpin } from "react-loader-spinner";
 
+import useInterval from 'use-interval';
+
 import { BASE_URL } from "../../services/linkr";
 import Header from "../common/Header";
 import NewPostsAdvice from "../common/NewPostsAdvice";
@@ -21,8 +23,10 @@ export default function Timeline(){
         description: null
     });
     const [ newPosts, setNewPosts ] = useState(0);
-    const [page, setPage] = useState(1);
+    const [page, setPage] = useState(2);
     const [hasMore, setHasMore] = useState(true);
+    const [delay, useDelay] = useState(15000);
+    const [isRunning, setIsRunning] = useState(true);
 
     useEffect(() => {
 
@@ -30,7 +34,6 @@ export default function Timeline(){
         promise.then( res => {
             setLoadingPublication(false);
             setPublications(res.data.publications);
-            setPage(res.data.page);
         });
         promise.catch( error => {
 
@@ -44,15 +47,21 @@ export default function Timeline(){
 
     }, []);
 
-    setInterval(() => {
+    useInterval(() => { 
+
+
         const promisse = axios.get("http://localhost:4000/timeline/size");
         promisse
         .then(res => {
-            const newPublications = Number(res.data.numberPublications) - publications.length
-            setNewPosts(newPublications);
+            const newPublications = Number(res.data.numberPublications) - publications.length;
+            if (newPublications > 0) {
+                setNewPosts(newPublications);
+            }
+            
         })
         .catch(err => console.log(err))
-    }, 15000);
+
+    }, isRunning ? delay : null);
 
     async function sendPublication(event){
 
@@ -83,13 +92,13 @@ export default function Timeline(){
     }
 
     function loadMorePublications() {
-        setLoadingPublication(true);
+        //setLoadingPublication(true);
         const promise = axios.get(`http://localhost:4000/timeline?page=${page}`);
         promise.then( res => {
             setLoadingPublication(false);
             setPublications([...publications, ...res.data.publications]);
-            setHasMore(res.data.isTheLast);
-            setPage(res.data.page);
+            //setHasMore(res.data.isTheLast);
+            setPage(page => page + 1);
         });
         promise.catch( error => {
 
@@ -143,7 +152,7 @@ export default function Timeline(){
                     
                 </PublishSection>
 
-                
+                <NewPostsAdvice newPosts={newPosts}/>
 
                 {
                     loadingPublication?
@@ -164,7 +173,7 @@ export default function Timeline(){
                         
                     <PostsSections>
                         <InfiniteScroll
-                            pageStart={page}
+                            pageStart={1}
                             loadMore={loadMorePublications}
                             hasMore={hasMore}
                             loader={<TailSpin

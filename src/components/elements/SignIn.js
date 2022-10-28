@@ -37,7 +37,7 @@ function SignIn() {
             localStorage.setItem('linkr', memberSerializado)
             const memberStorage = JSON.parse(localStorage.getItem('linkr'));
             setMember(memberStorage)
-            navigate("/publish");
+            navigate("/timeline");
 
         } catch (error) {
             console.log(error.message);
